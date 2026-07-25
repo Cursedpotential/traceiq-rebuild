@@ -15,6 +15,10 @@ export async function GET(req: NextRequest) {
   if (types.length) add("e.event_type = ANY($?)", types);
   if (p.get('overnight') === 'true') where.push("e.overnight_simple");
   if (p.get('query')) add("(e.serial_display ILIKE '%' || $? || '%' OR e.place_id ILIKE '%' || $? || '%')", p.get('query'));
+  const minProb = p.get('minProbability');
+  if (minProb) add("e.probability >= $?", Number(minProb));
+  const tags = p.getAll('tag');
+  if (tags.length) add("kp.tags && $?", tags);
 
   const limit = Math.min(Number(p.get('limit') ?? 2000), 20000);
 

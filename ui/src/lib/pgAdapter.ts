@@ -7,6 +7,8 @@ function toParams(filters: Partial<FilterState>): string {
   if (filters.dateTo) p.set('dateTo', filters.dateTo);
   (filters.eventTypes ?? []).forEach(t => p.append('eventType', t));
   if (filters.overnight?.length === 1 && filters.overnight[0] === 'overnight') p.set('overnight', 'true');
+  if ((filters.minProbability ?? 0) > 0) p.set('minProbability', String(filters.minProbability));
+  (filters.tags ?? []).forEach(t => p.append('tag', t));
   return p.toString();
 }
 

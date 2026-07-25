@@ -2,13 +2,15 @@
 import { useState, useMemo } from 'react';
 import { useWorkspace } from '@/lib/WorkspaceContext';
 import { TraceEvent } from '@/types';
-import { ArrowUpDown, MapPin, ExternalLink, Hash, AlertCircle } from 'lucide-react';
+import { KnownPlaceEditor } from '@/components/editor/KnownPlaceEditor';
+import { ArrowUpDown, MapPin, ExternalLink, Hash, AlertCircle, Edit3 } from 'lucide-react';
 
 type SortKey = 'serial_display' | 'place_id' | 'start_eastern' | 'overnight_simple' | 'duration';
 
 export function ResultsTable() {
-  const { filteredEvents, selectedEvent, setSelectedEvent, filters } = useWorkspace();
+  const { filteredEvents, selectedEvent, setSelectedEvent, filters, setFilteredEvents } = useWorkspace();
   const [sort, setSort] = useState<{ key: SortKey; dir: 'asc' | 'desc' }>({ key: 'start_eastern', dir: 'desc' });
+  const [editingEvent, setEditingEvent] = useState<TraceEvent | null>(null);
 
   const sorted = useMemo(() => {
     const out = [...filteredEvents];
@@ -45,6 +47,7 @@ export function ResultsTable() {
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted">{filteredEvents.length} events</span>
           <button onClick={() => setSelectedEvent(selectedEvent ? null : filteredEvents[0] ?? null)} className="p-1.5 rounded-md border border-border text-muted hover:text-ink hover:bg-surface-2" title="Open in map"><MapPin className="w-3.5 h-3.5" /></button>
+          <button onClick={() => setEditingEvent(editingEvent ? null : (selectedEvent ?? filteredEvents[0] ?? null))} className={`p-1.5 rounded-md border text-muted hover:text-ink hover:bg-surface-2 ${editingEvent ? 'bg-signal-soft border-signal text-signal' : 'border-border'}`} title="Edit known place"><Edit3 className="w-3.5 h-3.5" /></button>
           <button onClick={() => alert('Analytics view stub')} className="p-1.5 rounded-md border border-border text-muted hover:text-ink hover:bg-surface-2" title="Open in analytics"><ExternalLink className="w-3.5 h-3.5" /></button>
         </div>
       </div>
@@ -81,6 +84,28 @@ export function ResultsTable() {
             })}
           </tbody>
         </table>
+        {editingEvent && (
+          <div className="border-t border-border p-3 bg-surface-2">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-medium text-ink">Edit known place</span>
+              <button onClick={() => setEditingEvent(null)} className="text-[10px] text-muted hover:text-ink">Close</button>
+            </div>
+            <KnownPlaceEditor
+              event={editingEvent}
+              onSaved={(place) => {
+                const next = filteredEvents.map(ev =>
+                  (ev.place_id && ev.place_id === place.place_id) ||
+                  (!ev.place_id && ev.lat_r4 === place.lat_r4 && ev.lng_r4 === place.lng_r4)
+                    ? { ...ev, tags: place.tags }
+                    : ev
+                );
+                setFilteredEvents(next);
+                setSelectedEvent(next.find(ev => ev.event_id === selectedEvent?.event_id) ?? selectedEvent);
+                setEditingEvent(null);
+              }}
+            />
+          </div>
+        )}
         {sorted.length === 0 && (
           <div className="flex flex-col items-center justify-center h-40 text-muted text-sm gap-2">
             <AlertCircle className="w-5 h-5" /> No events match filters.

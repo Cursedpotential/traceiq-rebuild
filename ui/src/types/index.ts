@@ -42,4 +42,17 @@ export interface DataAdapter {
   }>;
 }
 
+export interface KnownPlace {
+  known_place_id?: number;
+  place_id: string | null;
+  lat_r4: number | null;
+  lng_r4: number | null;
+  label: string;
+  tags: string[];
+  is_concerning: boolean;
+  is_watch: boolean;
+  severity: number | null;
+  note: string | null;
+}
+
 export interface LatLng { lat: number; lng: number; }
