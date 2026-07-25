@@ -1,10 +1,13 @@
 "use client";
-import { useMemo, useCallback, useRef, useEffect } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 import { useWorkspace } from '@/lib/WorkspaceContext';
 import Map, { NavigationControl } from 'react-map-gl/maplibre';
 import { DeckGL, ScatterplotLayer, PathLayer, HeatmapLayer } from 'deck.gl';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { MapControls } from './MapControls';
+import { MapLegend } from './MapLegend';
+import { TimeScrubber } from './TimeScrubber';
 
 const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 const MAP_STYLE_DARK = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
@@ -28,6 +31,10 @@ export function MapView() {
     }
   }, [selectedEvent]);
 
+  const signalColor: [number, number, number, number] = theme === 'dark' ? [61, 184, 204, 255] : [20, 125, 140, 255];
+  const overnightColor: [number, number, number, number] = theme === 'dark' ? [146, 133, 224, 220] : [106, 90, 192, 220];
+  const dayColor: [number, number, number, number] = theme === 'dark' ? [217, 154, 43, 220] : [182, 125, 22, 220];
+
   const layers: any[] = useMemo(() => {
     const commonProps = { id: 'events', data: events, pickable: true };
     if (mapMode === 'pins') {
@@ -35,8 +42,8 @@ export function MapView() {
         ...commonProps,
         id: 'pins',
         getPosition: (d: any) => [d.lng, d.lat],
-        getFillColor: (d: any) => d.event_id === selectedEvent?.event_id ? [37, 99, 235, 255] : d.overnight_simple === 'overnight' ? [124, 58, 237, 200] : [5, 150, 105, 200],
-        getRadius: (d: any) => d.event_id === selectedEvent?.event_id ? 12 : 6,
+        getFillColor: (d: any): [number, number, number, number] => d.event_id === selectedEvent?.event_id ? [61, 184, 204, 255] : d.overnight_simple === 'overnight' ? overnightColor : signalColor,
+        getRadius: (d: any) => d.event_id === selectedEvent?.event_id ? 14 : 7,
         radiusMinPixels: 3,
         radiusMaxPixels: 30,
         onClick: (info: any) => setSelectedEvent(info.object || null),
@@ -50,7 +57,7 @@ export function MapView() {
           id: 'path',
           data: [{ path }],
           getPath: (d: any) => d.path,
-          getColor: [37, 99, 235, 200],
+          getColor: signalColor,
           getWidth: 3,
           widthMinPixels: 2,
         }),
@@ -58,7 +65,7 @@ export function MapView() {
           ...commonProps,
           id: 'path-pins',
           getPosition: (d: any) => [d.lng, d.lat],
-          getFillColor: [37, 99, 235, 180],
+          getFillColor: signalColor,
           getRadius: 4,
           radiusMinPixels: 2,
           onClick: (info: any) => setSelectedEvent(info.object || null),
@@ -81,24 +88,24 @@ export function MapView() {
       ...commonProps,
       id: 'time',
       getPosition: (d: any) => [d.lng, d.lat],
-      getFillColor: (d: any) => {
+      getFillColor: (d: any): [number, number, number, number] => {
         const h = new Date(d.start_eastern).getHours();
         const night = h < 6 || h >= 20;
-        return night ? [124, 58, 237, 220] : [245, 158, 11, 220];
+        return night ? overnightColor : dayColor;
       },
-      getRadius: 6,
+      getRadius: 7,
       radiusMinPixels: 3,
       radiusMaxPixels: 24,
       onClick: (info: any) => setSelectedEvent(info.object || null),
     })];
-  }, [events, mapMode, selectedEvent, setSelectedEvent]);
+  }, [events, mapMode, selectedEvent, setSelectedEvent, signalColor, overnightColor, dayColor]);
 
-  const getTooltip = useCallback(({ object }: any) => {
+  const getTooltip = ({ object }: any) => {
     if (!object) return null;
     return {
       text: `${object.serial_display} · ${object.event_type}\n${object.place_id}\n${object.start_eastern.slice(0, 16)}`,
     };
-  }, []);
+  };
 
   return (
     <div className="relative flex-1 h-full overflow-hidden">
@@ -119,6 +126,9 @@ export function MapView() {
           <NavigationControl position="top-right" />
         </Map>
       </DeckGL>
+      <MapControls />
+      <MapLegend />
+      <TimeScrubber />
     </div>
   );
 }

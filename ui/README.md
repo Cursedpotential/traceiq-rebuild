@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TraceIQ Workspace UI Scaffold
 
-## Getting Started
+This directory contains the **TraceIQ workspace UI scaffold** — a front-end prototype for the dual-use (manual + agent-native) analysis workspace described in `BUILD_BRIEF.md` and `docs/adr/0015-dual-use-agent-native-workspace.md`.
 
-First, run the development server:
+It implements **Variant A** from `docs/mockups/traceiq-workspace-mockups.html`: a left rail for query controls and chat, a central deck.gl-over-MapLibre map, and a right-hand results table.
+
+## Stack
+
+- Next.js (App Router) + TypeScript
+- Tailwind CSS v4 with custom light/dark tokens
+- deck.gl over MapLibre GL via `react-map-gl` / `@vis.gl/react-maplibre`
+- Mock data shaped like `analysis.latest_events`
+- Local mock chat with receipt chips (no live LLM in this scaffold)
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Available scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Script | Purpose |
+|--------|---------|
+| `npm run dev` | Start the Next.js dev server |
+| `npm run build` | Static export to `dist/` |
+| `npm run lint` | Run ESLint |
 
-## Learn More
+## Project layout (inside `ui/`)
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+  app/              Next.js pages + global styles
+  components/
+    shell/          AppTopBar, QueryPanel
+    map/            MapView, MapControls, MapLegend, TimeScrubber
+    table/          ResultsTable
+    chat/           ChatPane
+  lib/              WorkspaceContext, useTheme
+  mock/             generateMockEvents + DataAdapter stub
+  types/            TraceEvent, FilterState, DataAdapter, etc.
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Current scope
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Variant A shell layout with light/dark theme toggle
+- Working filters (query, date, type, tags, overnight, probability)
+- Map modes: Pins, Paths, Heatmap, Time-of-day
+- Results table with sort, row selection, and map fly-to sync
+- Agent chat stub with deterministic receipt chips
+- Placeholder pages for Analytics / Tables / Export / Config
 
-## Deploy on Vercel
+## TODO / stubs for future phases
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- [ ] Wire real `analysis.latest_events` data from the backend
+- [ ] Replace mock `DataAdapter` with HTTP adapter + caching
+- [ ] Integrate real assistant-ui backend or LLM with receipt grounding
+- [ ] Add Kepler.gl pop-out / deep-link
+- [ ] Implement Analytics, Tables, Export, and Config modules
+- [ ] Add row-level evidence drawer and deterministic receipts
+- [ ] Keyboard shortcuts and accessibility pass
+- [ ] Persist filters/theme in URL / localStorage
+- [ ] Mobile/responsive refinement
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Notes
+
+- Do not push this branch (`ui-scaffold`) to the remote repository.
+- Keep all UI work inside the `ui/` directory.
