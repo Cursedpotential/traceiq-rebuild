@@ -32,9 +32,34 @@ export type WorkspaceMode = 'manual' | 'agent';
 
 export type TabKey = 'explore' | 'analytics' | 'tables' | 'export' | 'config';
 
+/** One windowed page of events, plus the honest match count for that window. */
+export interface EventsPage {
+  events: TraceEvent[];
+  /** Rows returned in this response. */
+  count: number;
+  /** True match count for the current window, computed before LIMIT. */
+  total_in_window: number;
+  /** True when the window matched more rows than were returned. */
+  truncated: boolean;
+}
+
+/**
+ * Corpus extent for the current non-date filters — always displayed, so a 3-month
+ * window is never mistaken for the whole record.
+ */
+export interface CorpusBounds {
+  total: number;
+  min_date: string | null;
+  max_date: string | null;
+}
+
 export interface DataAdapter {
   listEvents(): Promise<TraceEvent[]>;
   searchEvents(filters: Partial<FilterState>): Promise<TraceEvent[]>;
+  /** Windowed fetch: only the requested date range, with window/total metadata. */
+  searchEventsPage(filters: Partial<FilterState>): Promise<EventsPage>;
+  /** Corpus totals + first/last date, ignoring the date window. */
+  getBounds(filters: Partial<FilterState>): Promise<CorpusBounds>;
   getEvent(id: string): Promise<TraceEvent | null>;
   askAgent(question: string, filters: Partial<FilterState>): Promise<{
     answer: string;

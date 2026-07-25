@@ -23,6 +23,22 @@ export const mockAdapter: DataAdapter = {
   async searchEvents(filters) {
     return MOCK_EVENTS.filter(e => matches(e, filters));
   },
+  async searchEventsPage(filters) {
+    const events = MOCK_EVENTS.filter(e => matches(e, filters));
+    // The mock corpus is small enough that a window is never truncated.
+    return { events, count: events.length, total_in_window: events.length, truncated: false };
+  },
+  async getBounds(filters) {
+    // Bounds ignore the date window, matching the live adapter's contract.
+    const { dateFrom: _f, dateTo: _t, ...rest } = filters;
+    const all = MOCK_EVENTS.filter(e => matches(e, rest));
+    const dates = all.map(e => e.start_eastern.slice(0, 10)).sort();
+    return {
+      total: all.length,
+      min_date: dates[0] ?? null,
+      max_date: dates[dates.length - 1] ?? null,
+    };
+  },
   async getEvent(id) {
     return MOCK_EVENTS.find(e => e.event_id === id) ?? null;
   },

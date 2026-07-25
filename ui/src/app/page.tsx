@@ -5,15 +5,11 @@ import { QueryPanel } from '@/components/shell/QueryPanel';
 import { MapView } from '@/components/map/MapView';
 import { ResultsTable } from '@/components/table/ResultsTable';
 import { ChatPane } from '@/components/chat/ChatPane';
-import { useEffect } from 'react';
-import { getAdapter } from '@/mock/adapter';
 
 function ExplorePage() {
-  const { tab, setFilteredEvents } = useWorkspace();
-
-  useEffect(() => {
-    getAdapter().searchEvents({}).then(setFilteredEvents);
-  }, [setFilteredEvents]);
+  // WorkspaceProvider owns all fetching (bounds + window). This page used to fetch as
+  // well, which double-loaded the corpus on every open.
+  const { tab } = useWorkspace();
 
   if (tab !== 'explore') {
     return (

@@ -1,7 +1,6 @@
 "use client";
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useWorkspace } from '@/lib/WorkspaceContext';
-import { getAdapter } from '@/mock/adapter';
 import { MapMode } from '@/types';
 import { Search, Calendar, Tag, Filter, MapPin, Route, Flame, Clock, X } from 'lucide-react';
 
@@ -19,15 +18,9 @@ const mapModes: { key: MapMode; label: string; icon: any }[] = [
 ];
 
 export function QueryPanel() {
-  const { filters, setFilters, mapMode, setMapMode, setFilteredEvents } = useWorkspace();
+  // Fetching lives in WorkspaceProvider — this panel only edits filter state.
+  const { filters, setFilters, mapMode, setMapMode, resetFilters, bounds, loadEntireCorpus } = useWorkspace();
   const [localQuery, setLocalQuery] = useState(filters.query);
-
-  useEffect(() => {
-    const t = setTimeout(() => {
-      getAdapter().searchEvents(filters).then(setFilteredEvents);
-    }, 150);
-    return () => clearTimeout(t);
-  }, [filters, setFilteredEvents]);
 
   const toggleTag = (tag: string) => {
     const next = filters.tags.includes(tag) ? filters.tags.filter(t => t !== tag) : [...filters.tags, tag];
@@ -48,7 +41,9 @@ export function QueryPanel() {
     (filters.minProbability > 0 ? 1 : 0),
   [filters]);
 
-  const clearAll = () => setFilters({ query: '', dateFrom: '', dateTo: '', eventTypes: [], tags: [], overnight: [], minProbability: 0 });
+  // Resets to the default 3-month window rather than an empty range, so "clear" never
+  // silently turns into "load all ~20k events".
+  const clearAll = resetFilters;
 
   return (
     <div className="flex flex-col h-full w-full min-w-[280px] max-w-[340px] bg-surface border-r border-border">
@@ -69,21 +64,39 @@ export function QueryPanel() {
         </div>
 
         <div>
-          <label className="flex items-center gap-1.5 text-xs font-medium text-muted mb-2"><Calendar className="w-3 h-3" /> Date range</label>
-          <div className="flex items-center gap-2">
-            <input
-              type="date"
-              value={filters.dateFrom}
-              onChange={e => setFilters({ ...filters, dateFrom: e.target.value })}
-              className="w-full px-2 py-1.5 text-xs bg-surface-2 border border-border rounded-md focus:outline-none focus:border-signal"
-            />
-            <span className="text-muted">→</span>
-            <input
-              type="date"
-              value={filters.dateTo}
-              onChange={e => setFilters({ ...filters, dateTo: e.target.value })}
-              className="w-full px-2 py-1.5 text-xs bg-surface-2 border border-border rounded-md focus:outline-none focus:border-signal"
-            />
+          <label className="flex items-center gap-1.5 text-xs font-medium text-muted mb-2"><Calendar className="w-3 h-3" /> Date window</label>
+          {/* Stacked rather than side-by-side: two native date inputs plus a separator
+              cannot fit the rail's 280px min width, which made them clip. min-w-0 lets
+              them shrink instead of forcing overflow. */}
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <span className="w-8 shrink-0 text-[10px] uppercase tracking-wide font-mono text-faint">From</span>
+              <input
+                type="date"
+                value={filters.dateFrom}
+                min={bounds.min_date ?? undefined}
+                max={bounds.max_date ?? undefined}
+                onChange={e => setFilters({ ...filters, dateFrom: e.target.value })}
+                className="flex-1 min-w-0 px-2 py-1.5 text-xs bg-surface-2 border border-border rounded-md focus:outline-none focus:border-signal"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-8 shrink-0 text-[10px] uppercase tracking-wide font-mono text-faint">To</span>
+              <input
+                type="date"
+                value={filters.dateTo}
+                min={bounds.min_date ?? undefined}
+                max={bounds.max_date ?? undefined}
+                onChange={e => setFilters({ ...filters, dateTo: e.target.value })}
+                className="flex-1 min-w-0 px-2 py-1.5 text-xs bg-surface-2 border border-border rounded-md focus:outline-none focus:border-signal"
+              />
+            </div>
+            <button
+              onClick={loadEntireCorpus}
+              className="w-full mt-0.5 px-2 py-1 text-[11px] rounded-md border border-border bg-surface-2 text-muted hover:text-ink transition"
+            >
+              Load full record ({bounds.total.toLocaleString()} events)
+            </button>
           </div>
         </div>
 

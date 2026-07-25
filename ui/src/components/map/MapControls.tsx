@@ -11,9 +11,9 @@ const mapModes: { key: MapMode; label: string; icon: React.ElementType }[] = [
 ];
 
 export function MapControls() {
-  const { mapMode, setMapMode, filteredEvents, filters } = useWorkspace();
-  const dateFrom = filters.dateFrom || (filteredEvents[0]?.start_eastern.slice(0, 10) ?? '—');
-  const dateTo = filters.dateTo || (filteredEvents[filteredEvents.length - 1]?.end_eastern.slice(0, 10) ?? '—');
+  const { mapMode, setMapMode, filters, bounds, windowMeta, loading } = useWorkspace();
+  const dateFrom = filters.dateFrom || bounds.min_date || '—';
+  const dateTo = filters.dateTo || bounds.max_date || '—';
 
   return (
     <>
@@ -41,10 +41,25 @@ export function MapControls() {
         </button>
       </div>
 
+      {/* Always shows the corpus total and full extent, so a windowed view can never
+          read as the complete record. */}
       <div className="absolute top-3 right-14 z-20 bg-surface/90 backdrop-blur border border-border rounded-[var(--r)] shadow-[var(--shadow)] px-3 py-2">
-        <div className="text-[10px] uppercase tracking-wide font-mono text-muted mb-0.5">Events</div>
-        <div className="text-sm font-semibold text-ink">{filteredEvents.length.toLocaleString()}</div>
+        <div className="text-[10px] uppercase tracking-wide font-mono text-muted mb-0.5">
+          Events in window
+        </div>
+        <div className="text-sm font-semibold text-ink tabular-nums">
+          {loading ? '…' : windowMeta.totalInWindow.toLocaleString()}
+          <span className="text-muted font-normal"> of {bounds.total.toLocaleString()}</span>
+        </div>
         <div className="text-[10px] font-mono text-faint mt-0.5">{dateFrom} → {dateTo}</div>
+        <div className="text-[10px] font-mono text-faint">
+          full record {bounds.min_date ?? '—'} → {bounds.max_date ?? '—'}
+        </div>
+        {windowMeta.truncated && (
+          <div className="text-[10px] font-mono text-amber-500 mt-0.5">
+            window truncated at {windowMeta.count.toLocaleString()} rows
+          </div>
+        )}
       </div>
     </>
   );
