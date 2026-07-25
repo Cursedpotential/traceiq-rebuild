@@ -53,10 +53,10 @@ async function upsertKnownPlace(
     const id = existing.rows[0].known_place_id;
     await pool.query(
       `UPDATE ref.known_place
-       SET label = $3, tags = $4, is_concerning = $5, is_watch = $6,
-           severity = $7, note = $8, updated_at = NOW()
+       SET label = $2, tags = $3, is_concerning = $4, is_watch = $5,
+           severity = $6, note = $7, updated_at = NOW()
        WHERE known_place_id = $1`,
-      [id, lat_r4, lng_r4, label, tagList, concerning, watch, severity, note],
+      [id, label, tagList, concerning, watch, severity, note],
     );
     return id;
   }
