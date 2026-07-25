@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useRef, useEffect } from 'react';
 import { useWorkspace } from '@/lib/WorkspaceContext';
-import Map, { NavigationControl } from 'react-map-gl/maplibre';
+import Map, { NavigationControl } from '@vis.gl/react-maplibre';
 import { DeckGL, ScatterplotLayer, PathLayer, HeatmapLayer } from 'deck.gl';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';

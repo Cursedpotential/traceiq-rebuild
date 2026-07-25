@@ -34,6 +34,10 @@ export const mockAdapter: DataAdapter = {
   },
 };
 
+import { pgAdapter } from '@/lib/pgAdapter';
+
+// Live by default (real traceiq data via /api/events). Set NEXT_PUBLIC_DATA_MODE=mock
+// to fall back to the in-memory mock corpus.
 export function getAdapter(): DataAdapter {
-  return mockAdapter;
+  return process.env.NEXT_PUBLIC_DATA_MODE === 'mock' ? mockAdapter : pgAdapter;
 }
