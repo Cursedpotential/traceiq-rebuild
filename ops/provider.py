@@ -7,10 +7,13 @@
 #   python provider.py template locationiq reverse GET "/v1/reverse?key={key}&lat={lat}&lon={lng}&format=json"
 #   python provider.py call locationiq reverse lat=43.0126 lng=-83.6875
 #   python provider.py list
-import argparse, getpass, json, sys, urllib.request, urllib.error
+import argparse, getpass, json, os, sys, urllib.request, urllib.error
 import psycopg
+from provider_http import build_request
 
-DSN = "host=100.119.96.29 port=5432 dbname=traceiq user=ai password=ai"
+DSN = os.environ.get("TRACEIQ_DSN_KV",
+                     "host=100.119.96.29 port=5432 dbname=traceiq user=ai password=ai")
+
 
 p = argparse.ArgumentParser()
 sub = p.add_subparsers(dest="cmd", required=True)
@@ -19,6 +22,9 @@ pa.add_argument("--base-url"); pa.add_argument("--notes")
 pk = sub.add_parser("key"); pk.add_argument("provider"); pk.add_argument("key_name")
 pt = sub.add_parser("template"); pt.add_argument("provider"); pt.add_argument("tname")
 pt.add_argument("method"); pt.add_argument("url_template"); pt.add_argument("--cost", type=float, default=0)
+pt.add_argument("--header", action="append", metavar="'Name: value'",
+                help="auth/extra header; {key} is substituted from the stored credential. "
+                     "Repeatable. Needed for Radar (Authorization: <key>).")
 pc = sub.add_parser("call"); pc.add_argument("provider"); pc.add_argument("tname")
 pc.add_argument("kv", nargs="*", help="lat=.. lng=.. etc")
 pb = sub.add_parser("batch", help="run template once per row of a SQL query")
@@ -48,7 +54,20 @@ with psycopg.connect(DSN) as conn, conn.cursor() as cur:
         cur.execute("INSERT INTO geo.credential_audit (credential_id, changed_by, change) VALUES (%s,'owner-cli','set/rotated')", (cid,))
         print(f"credential {a.key_name} stored for {a.provider} (value not echoed)")
     elif a.cmd == "template":
-        tpl_patch = json.dumps({a.tname: {"method": a.method.upper(), "url": a.url_template, "cost_usd": a.cost}})
+        # --header 'Name: value' may repeat; {key} inside a header value is substituted at
+        # call time. Radar authenticates via `Authorization: <raw key>` (no Bearer prefix),
+        # which cannot be expressed as a URL param — HERE/Google take ?apiKey=/?key= instead,
+        # so auth style stays DATA per ADR-0014 rather than code per provider.
+        hdrs = {}
+        for h in (a.header or []):
+            if ":" not in h:
+                sys.exit(f"--header must be 'Name: value', got {h!r}")
+            hk, hv = h.split(":", 1)
+            hdrs[hk.strip()] = hv.strip()
+        tpl_body = {"method": a.method.upper(), "url": a.url_template, "cost_usd": a.cost}
+        if hdrs:
+            tpl_body["headers"] = hdrs
+        tpl_patch = json.dumps({a.tname: tpl_body})
         cur.execute("""UPDATE geo.provider SET call_templates = call_templates || %s::jsonb
                        WHERE name=%s RETURNING name""", (tpl_patch, a.provider))
         print("template saved:", cur.fetchone()[0], "/", a.tname)
@@ -62,8 +81,7 @@ with psycopg.connect(DSN) as conn, conn.cursor() as cur:
             sys.exit(f"no enabled provider '{a.provider}' with template '{a.tname}'")
         pid, base, tpl, key = row
         args = dict(kv.split("=", 1) for kv in a.kv)
-        url = (base or "") + tpl["url"].format(key=key or "", **args)
-        req = urllib.request.Request(url, method=tpl.get("method", "GET"))
+        req = build_request(base, tpl, key, args)
         status, body = None, None
         try:
             with urllib.request.urlopen(req, timeout=30) as r:
@@ -99,9 +117,8 @@ with psycopg.connect(DSN) as conn, conn.cursor() as cur:
         ok = fail = 0
         for r in rows:
             args = dict(zip(cols, (str(v) for v in r)))
-            url = (base or "") + tpl["url"].format(key=key or "", **args)
             try:
-                with urllib.request.urlopen(urllib.request.Request(url, method=tpl.get("method", "GET")), timeout=30) as resp:
+                with urllib.request.urlopen(build_request(base, tpl, key, args), timeout=30) as resp:
                     status, body = resp.status, resp.read().decode("utf-8", "replace")
             except urllib.error.HTTPError as e:
                 status, body = e.code, e.read().decode("utf-8", "replace")
