@@ -23,3 +23,4 @@ ui/.next_old_*/
 ui/tsconfig.tsbuildinfo
 .claude/settings.local.json
 ui/.claude/settings.local.json
+.serena/project.local.yml
