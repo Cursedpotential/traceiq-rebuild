@@ -99,6 +99,22 @@ brain lands.
 rule as a hard architectural boundary; Graphiti ingestion silently empty → node-count gate;
 PII in knowledge graph → private-infra only, derived-facts-only, never raw evidence.
 
+## Addendum — Evidence & Kepler drive mechanisms (2026-07-24, owner confirmed)
+
+- **Evidence reports are driven from the console via URL parameters**, opened in a pop-out:
+  `https://<evidence-host>/<report>?date_range=A..B&place=<id>`. Clicking a day/place/period
+  builds that URL. "Live" = rebuild-on-ingest (Evidence regenerates when the working layer
+  rebuilds — the deliberate milestone event of ADR-0010), which gives court-clean
+  "current-as-of-last-rebuild" snapshot semantics; Evidence server-mode against live DB is
+  the alternative. The `↗ analytics` door on results/detail targets this.
+- **Custom Kepler visualizations are requested from the console (or the agent) and rendered
+  in a pop-out**: the UI/agent builds the current query's GeoJSON (from DuckDB/PG) + a Kepler
+  config (layers/filters/color-by/time-playback) and hands it to the Kepler pop-out via
+  `addDataToMap`/postMessage or a config URL. Manual: "↗ Kepler" opens with the current
+  selection pre-staged. Agent: "heatmap of her 2022 overnights" → generated config → pop-out.
+  Kepler stays a launched-pre-configured pop-out, never embedded (it's heavy). The `↗ Kepler`
+  button targets this.
+
 ## Status note
 
 Proposed only. Companion static mockups in `docs/mockups/` (variants A/B/C) for owner review.
