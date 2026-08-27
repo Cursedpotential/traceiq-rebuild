@@ -1,0 +1,43 @@
+---
+scope: E:/AI_Workspace/Projects/traceIQ/traceiq-rebuild
+status: current
+verified_at: 2026-08-27
+superseded_by: null
+authority:
+  - AGENTS.md
+  - docs/adr/README.md
+  - db/migrations/
+watches:
+  - AGENTS.md
+  - docs/adr/README.md
+  - "db/migrations/**"
+contains_secrets: false
+---
+
+# TraceIQ Rebuild Memory Router
+
+> _Byline: Codex · GPT-5 · 2026-08-27._
+
+- Architecture decisions: `docs/adr/README.md`, then the linked ADR.
+- Schema and transformation contracts: `docs/SCHEMA.md`, `db/migrations/`,
+  `db/transformations/`, and `docs/transformations/`.
+- Current bounded validation: `docs/VALIDATION_REPORT.md`,
+  `docs/VALIDATION_REPORT_data.md`, and the relevant `ops/*REPORT.md`.
+- UI intent and implementation context: `ui/AGENTS.md`, `ui/BUILD_BRIEF.md`,
+  `ui/BUILD_BRIEF_PHASE2.md`, and `ui/README.md`.
+- Reporting context: `reports/README.md` and its linked pages.
+- Parent checkout reconciliation: `../REPOSITORY_RECONCILIATION.md`; it does not authorize changes
+  from this repository.
+
+Local `.claude/`, `.remember/`, `.memsearch/`, and `.serena/` state may be stale or branch-specific.
+Use it only to locate current source, then verify every material claim against tracked files and
+live Git state. Never store secrets or evidence content here.
+
+<!-- freshness
+watches_hash: d2c62b5
+last_verified: 2026-08-27
+watches:
+  - AGENTS.md
+  - docs/adr/README.md
+  - db/migrations/**
+-->
