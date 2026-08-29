@@ -30,7 +30,9 @@ authority over current source, ADRs, data custody, or Git state.
 ## Safety
 
 - Preserve unrelated and untracked work; never reset, clean, stash, or overwrite it.
-- Never delete evidence, data, or repository content. Stop and ask before any removal or migration.
+- Never delete evidence, data, or repository content. If an approved repository file must be removed,
+  move it to this repository's `to_be_deleted/` boundary; only the owner permanently deletes there.
+  Stop and ask before any evidence/data move or migration.
 - Do not place secrets, credentials, private evidence content, or copied evidence text in source,
   instructions, memory routers, logs, commits, or reports.
 - Verification claims must identify whether they are static, local, integration, or live.
