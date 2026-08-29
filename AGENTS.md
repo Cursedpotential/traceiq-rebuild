@@ -9,8 +9,8 @@ Stage only explicit owned files; never use `git add .` or `git add -A`.
 
 ## Repository boundary
 
-The parent `traceIQ/` directory is a different repository under an active reconciliation hold.
-Never stage, commit, repair, or otherwise mutate the parent repository while working here. Git
+The parent `traceIQ/` directory is a different, reconciled repository that intentionally ignores
+this nested child. Never stage, commit, or otherwise mutate the parent repository while working here. Git
 worktrees under `.claude/worktrees/` belong to this repository but are separate working trees;
 always verify the active worktree and branch before acting.
 
