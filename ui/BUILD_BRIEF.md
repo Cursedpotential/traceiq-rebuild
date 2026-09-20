@@ -1,5 +1,8 @@
 # TraceIQ Workspace — Build Brief (scaffold phase)
 
+> _Naming (D-140, 2026-09-05; applied 2026-09-06): this product is **vestigia** (formerly traceIQ / TraceIQ - Latin: footprints, tracks). Working copy: `probata/modules/vestigia/` (directory rename from `modules/traceIQ/` landed 2026-09-06; old name kept as a junction). GitHub repo name unchanged pending its own decision. Canon: `probata/docs/NAMING.md`. Historical text below is left verbatim; both names remain valid in recall stores (D-142)._
+
+
 > _Byline: Claude Code · Fable 5 · 2026-07-24 · Handoff spec for OpenCode/any builder._
 > Authority: ADR-0015 (proposed) + mockup `../docs/mockups/traceiq-workspace-mockups.html`
 > (Variant A = chosen). Read both FIRST. ADRs 0001-0014 in ../docs/adr/ are accepted law.

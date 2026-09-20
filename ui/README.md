@@ -1,5 +1,8 @@
 # TraceIQ Workspace UI Scaffold
 
+> _Naming (D-140, 2026-09-05; applied 2026-09-06): this product is **vestigia** (formerly traceIQ / TraceIQ - Latin: footprints, tracks). Working copy: `probata/modules/vestigia/` (directory rename from `modules/traceIQ/` landed 2026-09-06; old name kept as a junction). GitHub repo name unchanged pending its own decision. Canon: `probata/docs/NAMING.md`. Historical text below is left verbatim; both names remain valid in recall stores (D-142)._
+
+
 This directory contains the **TraceIQ workspace UI scaffold** — a front-end prototype for the dual-use (manual + agent-native) analysis workspace described in `BUILD_BRIEF.md` and `docs/adr/0015-dual-use-agent-native-workspace.md`.
 
 It implements **Variant A** from `docs/mockups/traceiq-workspace-mockups.html`: a left rail for query controls and chat, a central deck.gl-over-MapLibre map, and a right-hand results table.

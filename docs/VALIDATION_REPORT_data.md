@@ -1,5 +1,8 @@
 ## Coverage & gaps (her corpus, deduped)
 
+> _Naming (D-140, 2026-09-05; applied 2026-09-06): this product is **vestigia** (formerly traceIQ / TraceIQ - Latin: footprints, tracks). Working copy: `probata/modules/vestigia/` (directory rename from `modules/traceIQ/` landed 2026-09-06; old name kept as a junction). GitHub repo name unchanged pending its own decision. Canon: `probata/docs/NAMING.md`. Historical text below is left verbatim; both names remain valid in recall stores (D-142)._
+
+
 - Span: **2017-09 → 2024-08** (71 months with data)
 - **Missing months (13):** 2017-11, 2017-12, 2018-01, 2020-04, 2020-05, 2020-06, 2020-07, 2020-08, 2020-09, 2020-10, 2020-11, 2020-12, 2021-01
 - Thin months (<10 days with data): 2017-09 (3d/25ev), 2018-02 (4d/39ev), 2018-04 (8d/117ev), 2018-05 (6d/47ev), 2018-07 (5d/62ev), 2018-08 (4d/55ev), 2018-09 (4d/25ev), 2018-10 (4d/31ev), 2018-11 (6d/62ev), 2018-12 (5d/36ev), 2019-01 (1d/5ev), 2019-02 (5d/33ev), 2021-11 (6d/62ev), 2023-04 (7d/61ev), 2024-08 (5d/44ev)

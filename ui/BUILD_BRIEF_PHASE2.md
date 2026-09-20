@@ -1,5 +1,8 @@
 # TraceIQ Workspace — Build Brief PHASE 2 (live data, editing, validation, map fix)
 
+> _Naming (D-140, 2026-09-05; applied 2026-09-06): this product is **vestigia** (formerly traceIQ / TraceIQ - Latin: footprints, tracks). Working copy: `probata/modules/vestigia/` (directory rename from `modules/traceIQ/` landed 2026-09-06; old name kept as a junction). GitHub repo name unchanged pending its own decision. Canon: `probata/docs/NAMING.md`. Historical text below is left verbatim; both names remain valid in recall stores (D-142)._
+
+
 > Handoff for OpenCode. Read ui/BUILD_BRIEF.md + docs/adr/0015 first. Branch: ui-scaffold.
 > Commit incrementally, NEVER push, work in ui/ (UI) and ops/ (validation script) only,
 > NEVER touch E:\AI_Workspace\.git or anything outside traceiq-rebuild/.
